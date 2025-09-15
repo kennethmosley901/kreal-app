@@ -1,3 +1,4 @@
+import { api } from "../lib/api";
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
