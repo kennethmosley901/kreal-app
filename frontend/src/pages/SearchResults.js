@@ -6,18 +6,19 @@ import { Search, Filter, SortAsc, ChevronDown, Film, Tv, Globe } from 'lucide-re
 import ContentCard from '../components/ContentCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-const fetchSearchResults = async (query, page = 1, contentType = 'multi', platform = null) => {
+const fetchSearchResults = async (query, page = 1, contentType = "multi", platform) => {
   const params = new URLSearchParams({
     q: query,
     page: page.toString(),
-    content_type: contentType
+    content_type: contentType,
   });
-  
-  if (platform) {
-    params.append('platform', platform);
-  }
+  if (platform) params.append("platform", platform);
+
+  const { data } = await api.get(`/search?${params.toString()}`);
+  return data; // or setResults(data) if you were setting state here
+};
+
   
   const response = await fetch(`${BACKEND_URL}/api/search?${params.toString()}`);
   if (!response.ok) {
