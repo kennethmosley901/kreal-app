@@ -17,15 +17,6 @@ const fetchPlatforms = async () => {
   return data;
 };
 
-
-const fetchPlatforms = async () => {
-  const response = await fetch(`${BACKEND_URL}/api/platforms`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch platforms');
-  }
-  return response.json();
-};
-
 const Home = () => {
   const { data: trendingData, isLoading, error } = useQuery({
     queryKey: ['trending'],
