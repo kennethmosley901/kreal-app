@@ -6,15 +6,17 @@ import HeroSection from '../components/HeroSection';
 import ContentCard from '../components/ContentCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const fetchTrendingContent = async () => {
-  const response = await fetch(`${BACKEND_URL}/api/trending?content_type=all`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch trending content');
-  }
-  return response.json();
+  const { data } = await api.get(`/trending?content_type=all`);
+  return data;
 };
+
+const fetchPlatforms = async () => {
+  const { data } = await api.get(`/platforms`);
+  return data;
+};
+
 
 const fetchPlatforms = async () => {
   const response = await fetch(`${BACKEND_URL}/api/platforms`);
