@@ -1,10 +1,15 @@
-// frontend/src/lib/api.js
-import axios from "axios";
+// server.js (or wherever you set up Express)
+import cors from "cors";
 
-const API_BASE =
-  process.env.REACT_APP_API_URL || "https://kreal-app.onrender.com/api";
+const allowed = [
+  "http://localhost:3000",
+  "https://kreal-app-frontend.onrender.com", // <-- your actual frontend URL
+];
 
-export const api = axios.create({
-  baseURL: API_BASE,
-  withCredentials: true,
-});
+app.use(
+  cors({
+    origin: (origin, cb) => cb(null, !origin || allowed.includes(origin)),
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
