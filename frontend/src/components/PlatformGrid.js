@@ -1,3 +1,4 @@
+import { api } from "../lib/api";
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Film, Tv, Users, Star } from 'lucide-react';
