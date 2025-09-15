@@ -1,3 +1,4 @@
+import { api } from "../lib/api";
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Sparkles, TrendingUp, Clock, Zap, Film, Tv, Users, Globe } from 'lucide-react';
