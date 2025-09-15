@@ -1,12 +1,12 @@
 import { api } from "../lib/api";
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Search, Filter, SortAsc, ChevronDown, Film, Tv, Globe } from 'lucide-react';
-import ContentCard from '../components/ContentCard';
-import LoadingSpinner from '../components/LoadingSpinner';
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Search, Filter, SortAsc, ChevronDown, Film, Tv, Globe } from "lucide-react";
+import ContentCard from "../components/ContentCard";
+import LoadingSpinner from "../components/LoadingSpinner";
 
-
+// --- API helpers (Axios via shared api client) ---
 const fetchSearchResults = async (query, page = 1, contentType = "multi", platform) => {
   const params = new URLSearchParams({
     q: query ?? "",
@@ -16,52 +16,36 @@ const fetchSearchResults = async (query, page = 1, contentType = "multi", platfo
   if (platform) params.append("platform", platform);
 
   const { data } = await api.get(`/search?${params.toString()}`);
-  return data;               // <— this return is INSIDE the function now
-};
-
-// then in your component:
-const { data, isLoading, error } = useQuery({
-  queryKey: ["search", query, page, contentType, platform],
-  queryFn: () => fetchSearchResults(query, page, contentType, platform),
-});
-
-  
-  const response = await fetch(`${BACKEND_URL}/api/search?${params.toString()}`);
-  if (!response.ok) {
-    throw new Error('Failed to search content');
-  }
-  return response.json();
+  return data;
 };
 
 const fetchPlatforms = async () => {
-  const response = await fetch(`${BACKEND_URL}/api/platforms`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch platforms');
-  }
-  return response.json();
+  const { data } = await api.get(`/platforms`);
+  return data;
 };
 
+// --- Component ---
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState('relevance');
+  const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
-  
-  const query = searchParams.get('q') || '';
-  const contentType = searchParams.get('content_type') || 'multi';
-  const platformFilter = searchParams.get('platform') || null;
-  
+
+  const query = searchParams.get("q") || "";
+  const contentType = searchParams.get("content_type") || "multi";
+  const platformFilter = searchParams.get("platform") || null;
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['search', query, currentPage, contentType, platformFilter],
+    queryKey: ["search", query, currentPage, contentType, platformFilter],
     queryFn: () => fetchSearchResults(query, currentPage, contentType, platformFilter),
     enabled: !!query,
     keepPreviousData: true,
   });
 
   const { data: platformsData } = useQuery({
-    queryKey: ['platforms'],
+    queryKey: ["platforms"],
     queryFn: fetchPlatforms,
-    staleTime: 30 * 60 * 1000,
+    staleTime: 30 * 60 * 1000, // 30 minutes
   });
 
   useEffect(() => {
@@ -70,40 +54,40 @@ const SearchResults = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleContentTypeChange = (newContentType) => {
     const newParams = new URLSearchParams(searchParams);
-    newParams.set('content_type', newContentType);
+    newParams.set("content_type", newContentType);
     setSearchParams(newParams);
   };
 
   const handlePlatformChange = (newPlatform) => {
     const newParams = new URLSearchParams(searchParams);
-    if (newPlatform && newPlatform !== 'all') {
-      newParams.set('platform', newPlatform);
+    if (newPlatform && newPlatform !== "all") {
+      newParams.set("platform", newPlatform);
     } else {
-      newParams.delete('platform');
+      newParams.delete("platform");
     }
     setSearchParams(newParams);
   };
 
   const sortedResults = React.useMemo(() => {
     if (!data?.results) return [];
-    
+
     const results = [...data.results];
-    
+
     switch (sortBy) {
-      case 'rating':
+      case "rating":
         return results.sort((a, b) => b.vote_average - a.vote_average);
-      case 'year':
+      case "year":
         return results.sort((a, b) => {
-          const dateA = new Date(a.release_date || a.first_air_date || '1900-01-01');
-          const dateB = new Date(b.release_date || b.first_air_date || '1900-01-01');
+          const dateA = new Date(a.release_date || a.first_air_date || "1900-01-01");
+          const dateB = new Date(b.release_date || b.first_air_date || "1900-01-01");
           return dateB - dateA;
         });
-      case 'popularity':
+      case "popularity":
         return results.sort((a, b) => b.vote_count - a.vote_count);
       default:
         return results;
@@ -112,9 +96,12 @@ const SearchResults = () => {
 
   const getContentTypeLabel = () => {
     switch (contentType) {
-      case 'movie': return 'Movies';
-      case 'tv': return 'TV Shows';
-      default: return 'Movies & TV Shows';
+      case "movie":
+        return "Movies";
+      case "tv":
+        return "TV Shows";
+      default:
+        return "Movies & TV Shows";
     }
   };
 
@@ -143,9 +130,7 @@ const SearchResults = () => {
           Search Results for "{query}"
         </h1>
         <div className="flex items-center space-x-4 text-gray-400">
-          {data && (
-            <span>{data.total_results} {getContentTypeLabel().toLowerCase()} found</span>
-          )}
+          {data && <span>{data.total_results} {getContentTypeLabel().toLowerCase()} found</span>}
           {getPlatformName() && (
             <span className="flex items-center space-x-1">
               <Globe className="h-4 w-4" />
@@ -158,32 +143,32 @@ const SearchResults = () => {
       {/* Content Type Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         <button
-          onClick={() => handleContentTypeChange('multi')}
+          onClick={() => handleContentTypeChange("multi")}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-            contentType === 'multi'
-              ? 'bg-red-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            contentType === "multi"
+              ? "bg-red-600 text-white"
+              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
           }`}
         >
           All Content
         </button>
         <button
-          onClick={() => handleContentTypeChange('movie')}
+          onClick={() => handleContentTypeChange("movie")}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center space-x-1 ${
-            contentType === 'movie'
-              ? 'bg-red-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            contentType === "movie"
+              ? "bg-red-600 text-white"
+              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
           }`}
         >
           <Film className="h-3 w-3" />
           <span>Movies</span>
         </button>
         <button
-          onClick={() => handleContentTypeChange('tv')}
+          onClick={() => handleContentTypeChange("tv")}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center space-x-1 ${
-            contentType === 'tv'
-              ? 'bg-red-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            contentType === "tv"
+              ? "bg-red-600 text-white"
+              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
           }`}
         >
           <Tv className="h-3 w-3" />
@@ -199,7 +184,7 @@ const SearchResults = () => {
         >
           <Filter className="h-4 w-4" />
           <span>Filters</span>
-          <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? "rotate-180" : ""}`} />
         </button>
 
         <div className="flex items-center space-x-2">
@@ -223,18 +208,21 @@ const SearchResults = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-white font-medium mb-2">Platform</label>
-              <select 
-                value={platformFilter || 'all'}
+              <select
+                value={platformFilter || "all"}
                 onChange={(e) => handlePlatformChange(e.target.value)}
                 className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:outline-none focus:border-red-500"
               >
                 <option value="all">All Platforms</option>
-                {platformsData?.platforms && Object.entries(platformsData.platforms).map(([key, platform]) => (
-                  <option key={key} value={key}>{platform.name}</option>
-                ))}
+                {platformsData?.platforms &&
+                  Object.entries(platformsData.platforms).map(([key, platform]) => (
+                    <option key={key} value={key}>
+                      {platform.name}
+                    </option>
+                  ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-white font-medium mb-2">Year Range</label>
               <div className="flex space-x-2">
@@ -284,13 +272,10 @@ const SearchResults = () => {
         </div>
       ) : (
         <>
-          {/* Content Grid - 28 items per page */}
+          {/* Content Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6 mb-8">
             {sortedResults.map((content) => (
-              <ContentCard 
-                key={`${content.content_type}-${content.id}`} 
-                content={content} 
-              />
+              <ContentCard key={`${content.content_type}-${content.id}`} content={content} />
             ))}
           </div>
 
@@ -304,7 +289,7 @@ const SearchResults = () => {
               >
                 Previous
               </button>
-              
+
               <div className="flex space-x-1">
                 {Array.from({ length: Math.min(5, data.total_pages) }, (_, i) => {
                   const page = i + 1;
@@ -314,8 +299,8 @@ const SearchResults = () => {
                       onClick={() => handlePageChange(page)}
                       className={`px-3 py-2 rounded-lg transition-colors ${
                         page === currentPage
-                          ? 'bg-red-600 text-white'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          ? "bg-red-600 text-white"
+                          : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                       }`}
                     >
                       {page}
