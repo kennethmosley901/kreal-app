@@ -9,15 +9,21 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 const fetchSearchResults = async (query, page = 1, contentType = "multi", platform) => {
   const params = new URLSearchParams({
-    q: query,
-    page: page.toString(),
+    q: query ?? "",
+    page: String(page),
     content_type: contentType,
   });
   if (platform) params.append("platform", platform);
 
   const { data } = await api.get(`/search?${params.toString()}`);
-  return data; // or setResults(data) if you were setting state here
+  return data;               // <— this return is INSIDE the function now
 };
+
+// then in your component:
+const { data, isLoading, error } = useQuery({
+  queryKey: ["search", query, page, contentType, platform],
+  queryFn: () => fetchSearchResults(query, page, contentType, platform),
+});
 
   
   const response = await fetch(`${BACKEND_URL}/api/search?${params.toString()}`);
