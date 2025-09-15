@@ -25,21 +25,22 @@ client = AsyncIOMotorClient(mongo_url)
 db = client.get_database('kingshit_fu')
 
 app = FastAPI(title="KingShit.fu API", description="Movie & TV Show Streaming Aggregator API with Casting Support")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],   # later lock this to your Vercel domain
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # CORS middleware
+from fastapi.middleware.cors import CORSMiddleware
+import os
+
+# ... your FastAPI app setup above ...
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[os.environ.get("FRONTEND_ORIGIN", "*")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # Pydantic models
 class ContentResult(BaseModel):
