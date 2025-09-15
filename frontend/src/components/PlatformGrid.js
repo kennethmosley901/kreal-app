@@ -5,15 +5,12 @@ import { ExternalLink, Film, Tv, Users, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from './LoadingSpinner';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const fetchPlatforms = async () => {
-  const response = await fetch(`${BACKEND_URL}/api/platforms`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch platforms');
-  }
-  return response.json();
+  const { data } = await api.get(`/platforms`);
+  return data; // then use data just like before
 };
+
 
 const PlatformGrid = () => {
   const navigate = useNavigate();
